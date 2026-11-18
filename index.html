@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Job Finder</title>
+<meta name="description" content="Disputes, chargeback, card and payments jobs in Egypt and the Gulf, from LinkedIn. Updated every day.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Job Finder">
+<meta name="theme-color" content="#0a66c2">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<style>
+  :root {
+    --bg: #f3f5f8; --card: #ffffff; --ink: #1d2939; --muted: #667085; --line: #e4e7ec; --hover: #f7f9fc;
+    --brand: #0a66c2; --brand-ink: #ffffff; --brand-soft: #e8f1fb; --chip: #f2f4f7;
+    --strong: #067647; --strong-bg: #dcfae6; --good: #b54708; --good-bg: #fef0c7; --weak: #475467; --weak-bg: #eaecf0;
+    --star: #e8a400; --danger: #b42318;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f141a; --card: #171e26; --ink: #e6edf3; --muted: #98a2b3; --line: #2a333d; --hover: #1d2630;
+      --brand: #3d8fe0; --brand-ink: #ffffff; --brand-soft: #1b2b3d; --chip: #212a34;
+      --strong: #47cd89; --strong-bg: #0f2e1f; --good: #fdb022; --good-bg: #33260b; --weak: #b0b8c4; --weak-bg: #262f3a;
+      --star: #fdb022; --danger: #f97066;
+    }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 -apple-system, "Segoe UI", system-ui, Arial, sans-serif; }
+  a { color: var(--brand); }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px 40px; }
+  header.top { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; justify-content: space-between; }
+  header.top h1 { margin: 0; font-size: 22px; }
+  header.top p { margin: 2px 0 0; color: var(--muted); font-size: 14px; }
+  select, input[type=search] { font: inherit; font-size: 16px; color: var(--ink); background: var(--card);
+    border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+  .btn { font: inherit; border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 8px; padding: 7px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .btn:hover { border-color: var(--brand); }
+  .btn.primary { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 600; }
+  .btn.on { background: var(--brand-soft); border-color: var(--brand); color: var(--brand); }
+  .btn.small { padding: 4px 10px; font-size: 13px; }
+  .status { margin-top: 10px; font-size: 14px; color: var(--muted); }
+  .status b { color: var(--ink); }
+  .tip { margin-top: 12px; padding: 12px 14px; border-radius: 10px; background: var(--brand-soft); border: 1px solid var(--brand);
+    font-size: 14px; display: flex; gap: 10px; align-items: flex-start; }
+  .tip button { margin-left: auto; border: 0; background: none; color: var(--muted); font-size: 20px; line-height: 1; cursor: pointer; }
+  .toolbar { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .toolbar input[type=search] { flex: 1 1 220px; min-width: 0; }
+  .tabs, .cfilter { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cfilter { margin-top: 10px; }
+  .layout { display: grid; grid-template-columns: minmax(320px, 440px) 1fr; gap: 16px; margin-top: 14px; align-items: start; }
+  .list { background: var(--card); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .list-head { padding: 10px 14px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); }
+  .items { max-height: calc(100vh - 140px); overflow-y: auto; }
+  .job { display: grid; grid-template-columns: 48px minmax(0, 1fr) auto; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .job:hover { background: var(--hover); }
+  .job.sel { background: var(--brand-soft); box-shadow: inset 3px 0 0 var(--brand); }
+  .job.applied .t { text-decoration: line-through; text-decoration-color: var(--muted); }
+  .logo { width: 48px; height: 48px; border-radius: 8px; object-fit: contain; background: #fff; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; color: #475467; font-size: 18px; }
+  .job .t { font-weight: 600; color: var(--brand); line-height: 1.3; }
+  .job .c { font-size: 14px; }
+  .job .m { font-size: 13px; color: var(--muted); }
+  .badges { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+  .badge { font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--chip); color: var(--muted); white-space: nowrap; }
+  .badge.strong { background: var(--strong-bg); color: var(--strong); font-weight: 600; }
+  .badge.good { background: var(--good-bg); color: var(--good); font-weight: 600; }
+  .badge.weak { background: var(--weak-bg); color: var(--weak); }
+  .badge.new { background: var(--brand); color: var(--brand-ink); font-weight: 600; }
+  .badge.hire { color: var(--strong); }
+  .star { border: 0; background: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; padding: 4px; }
+  .star.on { color: var(--star); }
+  .detail { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px;
+    position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; }
+  .detail h2 { margin: 0; font-size: 21px; line-height: 1.3; }
+  .dhead { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 14px; align-items: start; }
+  .dhead .logo { width: 64px; height: 64px; }
+  .dmeta { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .dactions { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+  .criteria { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 10px 0 16px; }
+  .criteria div { background: var(--chip); border-radius: 8px; padding: 8px 10px; font-size: 14px; }
+  .criteria b { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+  .desc { white-space: pre-line; font-size: 15px; line-height: 1.6; border-top: 1px solid var(--line); padding-top: 14px; overflow-wrap: anywhere; }
+  .empty { color: var(--muted); padding: 40px 20px; text-align: center; }
+  .closed { color: var(--danger); font-weight: 600; }
+  .back { display: none; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .items { max-height: none; }
+    .detail { display: none; position: fixed; inset: 0; z-index: 10; border-radius: 0; border: 0; max-height: none; top: 0;
+      padding: max(16px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom)); }
+    .detail.open { display: block; }
+    .back { display: inline-flex; margin-bottom: 14px; position: sticky; top: 0; z-index: 1; }
+    .dactions .btn { flex: 1 1 auto; justify-content: center; padding: 10px 14px; }
+    header.top h1 { font-size: 20px; }
+  }
+  @media (max-width: 640px) {
+    header.top { flex-wrap: nowrap; align-items: flex-start; }
+    header.top p { font-size: 13px; }
+    #refreshBtn { padding: 6px 10px; font-size: 14px; flex: none; }
+    .toolbar { gap: 6px; }
+    .toolbar input[type=search] { flex-basis: 100%; }
+    .toolbar select { flex: 1 1 0; min-width: 0; font-size: 14px; padding: 6px 4px; }
+    .tabs, .cfilter { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-left: -16px; margin-right: -16px; padding: 0 16px; }
+    .tabs::-webkit-scrollbar, .cfilter::-webkit-scrollbar { display: none; }
+    .tabs .btn, .cfilter .btn { flex: none; }
+    .toolbar:has(.tabs) { flex-wrap: nowrap; }
+    .toolbar:has(.tabs) .tabs { flex: 1 1 auto; margin-right: 0; padding-right: 0; }
+    #exportBtn { flex: none; }
+    #exportBtn .label { display: none; }
+    .list { margin-left: -16px; margin-right: -16px; border-radius: 0; border-left: 0; border-right: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>LinkedIn Job Finder</h1>
+      <p>Disputes, chargeback, card &amp; payments jobs in Egypt and the Gulf. Updated automatically every morning.</p>
+    </div>
+    <button class="btn" id="refreshBtn" title="Load the latest jobs">⟳ Refresh</button>
+  </header>
+  <div class="status" id="status">Loading jobs…</div>
+  <div class="tip" id="homeTip" hidden>
+    <span>📱 <b>Tip:</b> tap <b>Share</b> <span aria-hidden="true">⬆︎</span> at the bottom of Safari, then <b>Add to Home Screen</b>. The Job Finder then opens like an app.</span>
+    <button id="tipClose" aria-label="Close tip">×</button>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Search title, company or city…">
+    <select id="match" aria-label="Match level">
+      <option value="good">Good fit</option>
+      <option value="strong">Best fit</option>
+      <option value="all">All jobs</option>
+    </select>
+    <select id="days" aria-label="Posted">
+      <option value="31">Last month</option>
+      <option value="7">Last week</option>
+      <option value="3">Last 3 days</option>
+    </select>
+    <select id="sort" aria-label="Sort">
+      <option value="match">Best match</option>
+      <option value="date">Newest</option>
+      <option value="company">Company A–Z</option>
+    </select>
+  </div>
+  <div class="toolbar">
+    <div class="tabs" id="tabs"></div>
+    <button class="btn small" id="exportBtn" title="Download the shortlist as a spreadsheet file" aria-label="Export shortlist">⬇<span class="label"> Export shortlist</span></button>
+  </div>
+  <div class="cfilter" id="cfilter"></div>
+
+  <div class="layout">
+    <section class="list">
+      <div class="list-head" id="listHead"></div>
+      <div class="items" id="items"></div>
+    </section>
+    <section class="detail" id="detail"><div class="empty">Select a job to see its details.</div></section>
+  </div>
+</div>
+
+<script>
+  const COUNTRIES = [
+    { code: "EG", name: "Egypt", flag: "🇪🇬" },
+    { code: "AE", name: "United Arab Emirates", flag: "🇦🇪" },
+    { code: "SA", name: "Saudi Arabia", flag: "🇸🇦" },
+    { code: "QA", name: "Qatar", flag: "🇶🇦" },
+    { code: "KW", name: "Kuwait", flag: "🇰🇼" },
+    { code: "BH", name: "Bahrain", flag: "🇧🇭" },
+    { code: "OM", name: "Oman", flag: "🇴🇲" }
+  ];
+  const COUNTRY = Object.fromEntries(COUNTRIES.map(c => [c.code, c]));
+
+  // How well a job title fits the CV (same weights as update_jobs.py)
+  const WEIGHTS = [
+    [/chargeback/i, 6], [/disput/i, 6], [/arbitration/i, 4], [/visa|mastercard|card scheme/i, 3],
+    [/\bcards?\b/i, 3], [/payment/i, 3], [/fraud/i, 3], [/acquir/i, 3], [/merchant/i, 2],
+    [/reconcil/i, 2], [/complaint/i, 3], [/issuing/i, 2], [/settlement|clearing/i, 2],
+    [/atm|transaction|acceptance/i, 1], [/operations?/i, 1], [/bank/i, 1],
+    [/risk|compliance|aml|legal|counsel/i, 1],
+    [/manager|head|lead|senior|\bsr\b|avp|\bvp\b|director|supervisor/i, 1],
+    [/intern|trainee|junior/i, -3]
+  ];
+  const score = job => WEIGHTS.reduce((s, [re, w]) => s + (re.test(job.title) ? w : 0), 0);
+  const level = s => s >= 6 ? "strong" : s >= 3 ? "good" : "weak";
+  const LEVEL_LABEL = { strong: "Strong match", good: "Good match", weak: "Possible match" };
+
+  // ---------- storage (this phone only) ----------
+  const KEY = "job-finder-site-v1";
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } },
+    set(v) { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {} }
+  };
+  const saved = store.get();
+  const prefs = {
+    starred: saved.starred || {},   // id -> job
+    applied: saved.applied || {},   // id -> date
+    hidden: saved.hidden || {},     // id -> true
+    tipClosed: !!saved.tipClosed
+  };
+  const savePrefs = () => store.set(prefs);
+
+  const view = { tab: "all", country: "", q: "", match: "good", days: 31, sort: "match", selected: null };
+  let data = { updated: null, jobs: [], details: {} };
+
+  const el = id => document.getElementById(id);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const safeUrl = u => /^https:\/\//i.test(u || "") ? u : "";
+  const fmtDate = d => d ? new Date(d + "T00:00:00").toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
+  const ageDays = d => d ? Math.floor((Date.now() - new Date(d + "T00:00:00")) / 864e5) : 0;
+  function ago(d) {
+    if (!d) return "";
+    const days = ageDays(d);
+    return days <= 0 ? "today" : days === 1 ? "1 day ago" : days < 7 ? `${days} days ago`
+      : days < 14 ? "1 week ago" : days < 31 ? `${Math.floor(days / 7)} weeks ago` : `${Math.floor(days / 30)} months ago`;
+  }
+
+  async function load() {
+    el("status").textContent = "Loading jobs…";
+    try {
+      const r = await fetch("jobs.json?t=" + Date.now(), { cache: "no-store" });
+      if (!r.ok) throw new Error(r.status);
+      data = await r.json();
+      data.details = data.details || {};
+      for (const j of data.jobs) if (prefs.starred[j.id]) prefs.starred[j.id] = j;
+      savePrefs();
+      el("status").innerHTML = `Last updated <b>${esc(new Date(data.updated).toLocaleString(undefined, { weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }))}</b> · ${data.jobs.length} jobs from the last month · updates every morning`;
+    } catch (e) {
+      el("status").innerHTML = '<span class="closed">Could not load the jobs. Check your internet and tap ⟳ Refresh.</span>';
+    }
+    view.selected = null;
+    render();
+  }
+
+  // ---------- list ----------
+  function allJobs() {
+    const map = new Map(data.jobs.map(j => [j.id, j]));
+    for (const [id, j] of Object.entries(prefs.starred)) if (!map.has(id) && j && j.id) map.set(id, j);
+    return [...map.values()].map(j => ({ ...j, score: score(j) }));
+  }
+  function visibleJobs() {
+    const q = view.q.toLowerCase();
+    let list = allJobs().filter(j => {
+      if (view.tab === "starred") return prefs.starred[j.id];
+      if (view.tab === "applied") return prefs.applied[j.id];
+      if (view.tab === "hidden") return prefs.hidden[j.id];
+      return !prefs.hidden[j.id];
+    });
+    if (view.tab === "all") {
+      if (view.match === "good") list = list.filter(j => level(j.score) !== "weak");
+      if (view.match === "strong") list = list.filter(j => level(j.score) === "strong");
+      list = list.filter(j => ageDays(j.date) <= view.days);
+    }
+    if (view.country) list = list.filter(j => j.country === view.country);
+    if (q) list = list.filter(j => `${j.title} ${j.company} ${j.location}`.toLowerCase().includes(q));
+    const byDate = (a, b) => (b.date || "").localeCompare(a.date || "");
+    if (view.sort === "date") list.sort(byDate);
+    else if (view.sort === "company") list.sort((a, b) => a.company.localeCompare(b.company));
+    else list.sort((a, b) => b.score - a.score || byDate(a, b));
+    return list;
+  }
+
+  function logoHtml(j) {
+    const initials = esc((j.company || "?").trim().slice(0, 1).toUpperCase());
+    return safeUrl(j.logo)
+      ? `<img class="logo" src="${esc(j.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-i="${initials}"
+           onerror="this.replaceWith(Object.assign(document.createElement('div'), {className: 'logo', textContent: this.dataset.i}))">`
+      : `<div class="logo">${initials}</div>`;
+  }
+
+  function renderTabs() {
+    const all = allJobs();
+    const n = {
+      all: all.filter(j => !prefs.hidden[j.id]).length,
+      starred: all.filter(j => prefs.starred[j.id]).length,
+      applied: all.filter(j => prefs.applied[j.id]).length,
+      hidden: all.filter(j => prefs.hidden[j.id]).length
+    };
+    const labels = { all: "All jobs", starred: "★ Shortlist", applied: "✓ Applied", hidden: "Hidden" };
+    el("tabs").innerHTML = Object.keys(labels).map(k =>
+      `<button class="btn small${view.tab === k ? " on" : ""}" data-tab="${k}">${labels[k]} (${n[k]})</button>`).join("");
+    const counts = {};
+    for (const j of all) if (!prefs.hidden[j.id]) counts[j.country] = (counts[j.country] || 0) + 1;
+    el("cfilter").innerHTML = `<button class="btn small${view.country ? "" : " on"}" data-country="">All countries</button>` +
+      COUNTRIES.filter(c => counts[c.code]).map(c =>
+        `<button class="btn small${view.country === c.code ? " on" : ""}" data-country="${c.code}">${c.flag} ${esc(c.name)} (${counts[c.code]})</button>`).join("");
+  }
+
+  function render() {
+    renderTabs();
+    const list = visibleJobs();
+    const filtered = view.tab === "all" && (view.match !== "all" || view.days < 31);
+    el("listHead").textContent = `${list.length} job${list.length === 1 ? "" : "s"}` + (filtered && view.match !== "all" ? " · weaker matches hidden, choose “All jobs” in the first menu to see them" : "");
+    if (!list.length) {
+      el("items").innerHTML = `<div class="empty">${data.jobs.length || view.tab !== "all" ? "No jobs match these filters." : "No jobs yet."}</div>`;
+    } else {
+      el("items").innerHTML = list.map(j => {
+        const lv = level(j.score), c = COUNTRY[j.country];
+        return `<div class="job${view.selected === j.id ? " sel" : ""}${prefs.applied[j.id] ? " applied" : ""}" data-id="${esc(j.id)}">
+          ${logoHtml(j)}
+          <div>
+            <div class="t">${esc(j.title)}</div>
+            <div class="c">${esc(j.company)}</div>
+            <div class="m">${esc(j.location)}</div>
+            <div class="badges">
+              <span class="badge ${lv}">${LEVEL_LABEL[lv]}</span>
+              ${j.isNew ? '<span class="badge new">New</span>' : ""}
+              ${c ? `<span class="badge">${c.flag} ${esc(c.code)}</span>` : ""}
+              <span class="badge" title="${esc(fmtDate(j.date))}">${esc(ago(j.date) || j.posted)}</span>
+              ${j.benefit ? `<span class="badge hire">${esc(j.benefit)}</span>` : ""}
+              ${j.salary ? `<span class="badge">${esc(j.salary)}</span>` : ""}
+              ${prefs.applied[j.id] ? '<span class="badge strong">✓ Applied</span>' : ""}
+            </div>
+          </div>
+          <button class="star${prefs.starred[j.id] ? " on" : ""}" data-star="${esc(j.id)}" aria-label="Add to shortlist">${prefs.starred[j.id] ? "★" : "☆"}</button>
+        </div>`;
+      }).join("");
+    }
+    if (!view.selected && list.length && window.innerWidth > 900) select(list[0].id, false);
+    else renderDetail();
+  }
+
+  // ---------- detail ----------
+  const findJob = id => allJobs().find(j => j.id === id);
+  function select(id, open = true) {
+    view.selected = id;
+    document.querySelectorAll(".job").forEach(n => n.classList.toggle("sel", n.dataset.id === id));
+    renderDetail();
+    if (open) { el("detail").classList.add("open"); el("detail").scrollTop = 0; document.body.style.overflow = window.innerWidth <= 900 ? "hidden" : ""; }
+  }
+  function closeDetail() { el("detail").classList.remove("open"); document.body.style.overflow = ""; }
+  function renderDetail() {
+    const j = view.selected && findJob(view.selected);
+    const box = el("detail");
+    if (!j) { box.innerHTML = '<div class="empty">Select a job to see its details.</div>'; return; }
+    const d = data.details[j.id];
+    const lv = level(j.score), c = COUNTRY[j.country];
+    const crit = d && d.criteria ? Object.entries(d.criteria) : [];
+    box.innerHTML = `
+      <button class="btn small back" data-back>← Back to jobs</button>
+      <div class="dhead">
+        ${logoHtml(j)}
+        <div>
+          <h2>${esc(j.title)}</h2>
+          <div>${safeUrl(j.companyUrl) ? `<a href="${esc(j.companyUrl)}" target="_blank" rel="noopener">${esc(j.company)}</a>` : esc(j.company)}</div>
+          <div class="dmeta">${esc(j.location)}${c ? " " + c.flag : ""} · Posted ${esc(fmtDate(j.date))} (${esc(ago(j.date) || j.posted)})${d && d.applicants ? " · " + esc(d.applicants) : ""}</div>
+          <div class="badges">
+            <span class="badge ${lv}">${LEVEL_LABEL[lv]}</span>
+            ${j.benefit ? `<span class="badge hire">${esc(j.benefit)}</span>` : ""}
+            ${j.salary ? `<span class="badge">${esc(j.salary)}</span>` : ""}
+          </div>
+        </div>
+      </div>
+      ${d && d.closed ? '<p class="closed">LinkedIn says this job is no longer accepting applications.</p>' : ""}
+      <div class="dactions">
+        <a class="btn primary" href="${esc(j.url)}" target="_blank" rel="noopener">Apply on LinkedIn ↗</a>
+        ${d && safeUrl(d.applyUrl) ? `<a class="btn" href="${esc(d.applyUrl)}" target="_blank" rel="noopener">Company website ↗</a>` : ""}
+        <button class="btn${prefs.starred[j.id] ? " on" : ""}" data-star="${esc(j.id)}">${prefs.starred[j.id] ? "★ In shortlist" : "☆ Shortlist"}</button>
+        <button class="btn${prefs.applied[j.id] ? " on" : ""}" data-applied="${esc(j.id)}">${prefs.applied[j.id] ? "✓ Applied" : "Mark as applied"}</button>
+        <button class="btn" data-hide="${esc(j.id)}">${prefs.hidden[j.id] ? "Unhide" : "Hide"}</button>
+      </div>
+      ${crit.length ? `<div class="criteria">${crit.map(([k, v]) => `<div><b>${esc(k)}</b>${esc(v)}</div>`).join("")}</div>` : ""}
+      <div class="desc">${d && d.description ? esc(d.description)
+        : 'The full description of this job is on LinkedIn. Tap <b>Apply on LinkedIn</b> to read it.'}</div>`;
+  }
+
+  // ---------- actions ----------
+  function toggle(map, id, value) {
+    if (map[id]) delete map[id]; else map[id] = value;
+    savePrefs(); render();
+  }
+  function exportCsv() {
+    const rows = Object.values(prefs.starred).filter(j => j && j.id);
+    if (!rows.length) { alert("Your shortlist is empty. Tap ☆ on a job to add it."); return; }
+    const head = ["Title", "Company", "Location", "Country", "Posted", "Applied", "LinkedIn link"];
+    const cell = v => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [head, ...rows.map(j => [j.title, j.company, j.location, (COUNTRY[j.country] || {}).name, j.date,
+      prefs.applied[j.id] ? "Yes" : "No", j.url])].map(r => r.map(cell).join(",")).join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv" }));
+    a.download = "job-shortlist.csv";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  document.addEventListener("click", e => {
+    const t = e.target.closest("[data-star],[data-applied],[data-hide],[data-tab],[data-country],[data-back],.job");
+    if (!t) return;
+    if (t.dataset.star) { e.stopPropagation(); return toggle(prefs.starred, t.dataset.star, findJob(t.dataset.star)); }
+    if (t.dataset.applied) return toggle(prefs.applied, t.dataset.applied, new Date().toISOString().slice(0, 10));
+    if (t.dataset.hide) { toggle(prefs.hidden, t.dataset.hide, true); return closeDetail(); }
+    if (t.dataset.tab) { view.tab = t.dataset.tab; view.selected = null; return render(); }
+    if (t.dataset.country !== undefined) { view.country = t.dataset.country; view.selected = null; return render(); }
+    if (t.hasAttribute("data-back")) return closeDetail();
+    if (t.classList.contains("job")) select(t.dataset.id);
+  });
+  el("refreshBtn").addEventListener("click", load);
+  el("q").addEventListener("input", e => { view.q = e.target.value; render(); });
+  el("match").addEventListener("change", e => { view.match = e.target.value; render(); });
+  el("days").addEventListener("change", e => { view.days = Number(e.target.value); render(); });
+  el("sort").addEventListener("change", e => { view.sort = e.target.value; render(); });
+  el("exportBtn").addEventListener("click", exportCsv);
+
+  // "Add to Home Screen" tip for iPhone Safari, until closed
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const standalone = window.navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+  el("homeTip").hidden = !(ios && !standalone && !prefs.tipClosed);
+  el("tipClose").addEventListener("click", () => { prefs.tipClosed = true; savePrefs(); el("homeTip").hidden = true; });
+
+  load();
+</script>
+</body>
+</html>
